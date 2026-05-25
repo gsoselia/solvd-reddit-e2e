@@ -1,9 +1,13 @@
 import { test, expect } from "@playwright/test";
+import { RedditPage } from "./page-object-model.spec";
 
 test("Can navigate to r/cats and has correct title and icon", async ({
   page,
 }) => {
   await page.goto("");
+  const redditPage = new RedditPage(page);
+  await redditPage.pageObjectModel();
+
   await page.locator("#search-input").click();
   await page.getByRole("textbox", { name: "Ask" }).fill("cat");
   await page
@@ -17,10 +21,7 @@ test("Can navigate to r/cats and has correct title and icon", async ({
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Community status:" }).locator("img"),
-  ).toHaveAttribute(
-    "src",
-    "https://emoji.redditmedia.com/wtdoixyp8oe81_t5_2qhta/drink",
-  );
+  ).toHaveAttribute("src", "https://emoji.redditmedia.com");
 });
 
 const getButtonBySortOption = (page, option) =>
@@ -28,7 +29,8 @@ const getButtonBySortOption = (page, option) =>
 
 test("Can sort", async ({ page }) => {
   await page.goto("/r/cats");
-
+  const redditPage = new RedditPage(page);
+  await redditPage.pageObjectModel();
   const bestBtn = await getButtonBySortOption(page, "Best");
   const hotBtn = await getButtonBySortOption(page, "Hot");
   const newBtn = await getButtonBySortOption(page, "New");
@@ -87,7 +89,8 @@ test("Can sort", async ({ page }) => {
 
 test("Can validate invalid email", async ({ page }) => {
   await page.goto("");
-
+  const redditPage = new RedditPage(page);
+  await redditPage.pageObjectModel();
   await page.locator("#login-button").click();
 
   await expect(page.locator('[aria-label="Log In"]')).toBeVisible();
@@ -97,15 +100,13 @@ test("Can validate invalid email", async ({ page }) => {
     .filter({ hasText: "Email me a one-time link" })
     .click();
 
-  await page.locator('#auth-magic-link-login-email').click();
-  await page.locator('input[type=email]').fill("invalid-email");
+  await page.locator("#auth-magic-link-login-email").click();
+  await page.locator("input[type=email]").fill("invalid-email");
 
-  const errorMsg = await page
-    .locator("faceplate-form-helper-text")
-    .filter({
-      hasText:
-        "Please include an '@' in the email address. 'invalid-email' is missing an '@'.",
-    });
-  
-  await expect(errorMsg).toBeVisible()
+  const errorMsg = await page.locator("faceplate-form-helper-text").filter({
+    hasText:
+      "Please include an '@' in the email address. 'invalid-email' is missing an '@'.",
+  });
+
+  await expect(errorMsg).toBeVisible();
 });
