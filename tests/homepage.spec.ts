@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { RedditPage } from "./page-object-model.spec";
+import { RedditPage } from "./page-object-model";
+import AxeBuilder from "@axe-core/playwright";
 
 test("Can navigate to r/cats and has correct title and icon", async ({
   page,
@@ -109,4 +110,21 @@ test("Can validate invalid email", async ({ page }) => {
   });
 
   await expect(errorMsg).toBeVisible();
+});
+
+test("should not have any automatically detectable accessibility issues", async ({
+  page,
+}) => {
+  await page.goto("");
+
+  const accessibilityScanResults = await new AxeBuilder({ page }).analyze();
+
+  // use soft assertions because home page has a couple of accessability issues
+  expect.soft(accessibilityScanResults.violations).toEqual([]);
+});
+
+test("Should return bad request", async ({ request }) => {
+  const result = await request.post("/svc/shreddit/graphql");
+  expect(result.status()).toEqual(400)
+  expect(result.statusText()).toEqual('Bad Request')
 });

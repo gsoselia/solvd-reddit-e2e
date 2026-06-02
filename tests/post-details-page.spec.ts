@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { RedditPage } from "./page-object-model.spec";
+import { RedditPage } from "./page-object-model";
 
 test("Can view galery images", async ({ page }) => {
   await page.goto(
